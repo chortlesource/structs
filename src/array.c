@@ -28,7 +28,7 @@
 // ARRAY FUNCTION IMPLEMENTATION
 //
 
-// Functions to create and free memory allocated to arrays
+
 struct array* array_create(size_t size) {
   // Allocate memory to the array struct
   struct array *array = malloc(sizeof(struct array));
@@ -100,7 +100,45 @@ int array_resize(struct array *array, size_t size) {
 }
 
 
-int array_insert(struct array *array, size_t pos, void *data, size_t size) { return 0; }
+int array_insert(struct array *array, size_t pos, void *data, size_t size) {
+  int rvalue = A_ERR;
+
+  if(array) {
+    // If the array is empty or pos indexes the end, append it
+    if(array->data == NULL || pos == array->count)
+      return array_append(array, data, size);
+
+    if(++array->count < array->capacity) {
+      for(size_t i = array->count; i > pos; --i)
+        array->data[i] = array->data[i - 1];
+
+      // Copy the data and add to our array
+      void *copy = calloc(1, size);
+      memcpy(copy, data, size);
+      array->data[pos] = copy;
+      rvalue = A_OK;
+    } else {
+      // Increase the capacity of our array to handle the insert
+      size_t newsize = array->capacity + 5;
+      void **tarry = realloc(array->data, sizeof(void*) * newsize);
+
+      for(size_t i = array->count; i > pos; --i)
+        tarry[i] = tarry[i - 1];
+
+      // Copy the data and add to our array
+      void *copy = calloc(1, size);
+      memcpy(copy, data, size);
+
+      // Add the reconfigured vars to our array
+      array->data      = tarry;
+      array->data[pos] = copy;
+      array->capacity  = newsize;
+      rvalue = A_OK;
+    }
+  }
+
+  return rvalue;
+}
 
 
 int array_append(struct array *array, void *data, size_t size) {
@@ -126,7 +164,7 @@ int array_set(struct array *array, size_t pos, void *data, size_t size) {
   int rvalue = A_ERR;
 
   if(array) {
-    // Handle resizing the array if the pos is unavailable
+    // Verify that the desired position is available
     if(array->data != NULL && pos < array->count) {
       // Copy data to our array
       void *copy = calloc(1, size);
@@ -191,6 +229,71 @@ void* array_get(struct array *array, size_t pos) {
 }
 
 
-void* array_pop_beg(struct array *array) { return NULL; }
-void* array_pop_end(struct array *array) { return NULL; }
-void* array_pop_pos(struct array *array, size_t pos) { return NULL; }
+void* array_pop_beg(struct array *array) {
+  void *data = NULL;
+
+  if(array) {
+    if(array->data != NULL) {
+      // Assign our pointer to data
+      data = array->data[0];
+
+      // If there is more than one item move everything forward
+      if(array->count > 1) {
+        for(size_t i = 0; i < array->count; i++)
+          array->data[i] = array->data[i + 1];
+      }
+
+      // Decrement the number of items
+      --array->count;
+
+      if(array->count == 0) {
+        // If the array is now empty free memory
+        free(array->data);
+        array->data     = NULL;
+        array->capacity = 0;
+      }
+    }
+  }
+
+  return data;
+}
+
+
+void* array_pop_end(struct array *array) {
+  void *data = NULL;
+
+  if(array) {
+    if(array->data != NULL) {
+      data = array->data[--array->count];
+    }
+  }
+
+  return data;
+}
+
+
+void* array_pop_pos(struct array *array, size_t pos) {
+  void *data = NULL;
+
+  if(array) {
+    if(array->data != NULL) {
+      // If the first or last element use the relevant function
+      if(pos == 0)
+        return array_pop_beg(array);
+      else if(pos == array->count - 1)
+        return array_pop_end(array);
+
+      else if(pos < array->count) {
+        data = array->data[pos];
+
+        // Move all elements forward one space
+        for(size_t i = pos; i < array->count - 1; i++)
+          array->data[i] = array->data[i + 1];
+
+        --array->count; // Decrement the count
+      }
+    }
+  }
+
+  return data;
+}

@@ -44,6 +44,25 @@ static void array_print(struct array *array, size_t row_len) {
 }
 
 
+static void array_print_int(struct array *array, size_t row_len) {
+  if(array) {
+    if(array->data != NULL) {
+      size_t row = 0;
+      printf("\t%zu:", row++);
+
+      for(size_t i = 0; i < array->count; i++) {
+        // Print out each row on a new line
+        if(i == row * row_len)
+          printf("|\n\t%zu:", row++);
+
+        printf("|%d", (*(int*)array_get(array, i)));
+      }
+      printf("|\n");
+    }
+  }
+}
+
+
 /////////////////////////////////////////////////////////////
 // TEST FUNCTION DECLARATIONS
 //
@@ -103,14 +122,65 @@ void array_tests() {
 
   // Test that array get returns null if invalid
   if(array_get(array3, 6) == NULL)
-    printf("TEST%u: Test get invalid\t[SUCCESS]\n", ++t);
+    printf("TEST%u: Test get invalid item\t[SUCCESS]\n", ++t);
   else
-    printf("TEST%u: Test get invalid\t[FAILURE]\n", ++t);
+    printf("TEST%u: Test get invalid item\t[FAILURE]\n", ++t);
+
+  // Test that the array can handle inserts
+  struct array *array4 = array_create(0);
+  int success = 0;
+
+  for(int i = 0; i < 30; i++)
+    success += array_insert(array4, 1, &i, sizeof(int));
+
+  if(success)
+    printf("TEST%u: Test insert 30 ints\t[SUCCESS]\n", ++t);
+  else
+    printf("TEST%u: Test insert 30 ints\t[FAILURE]\n", ++t);
+
+  array_print_int(array4, 10);
+
+  // Test popping items from the array
+  void *data = NULL;
+  data = array_pop_beg(array4);
+
+  if(data) {
+    printf("TEST%u: Test pop front item\t[SUCCESS]\n", ++t);
+    printf("\tItem was: %d\n", (*(int*)data));
+    free(data);
+  } else {
+    printf("TEST%u: Test pop front item\t[FAILURE]\n", ++t);
+  }
+
+  data = NULL;
+  data = array_pop_end(array4);
+
+  if(data) {
+    printf("TEST%u: Test pop last item\t[SUCCESS]\n", ++t);
+    printf("\tItem was: %d\n", (*(int*)data));
+    free(data);
+  } else {
+    printf("TEST%u: Test pop last item\t[FAILURE]\n", ++t);
+  }
+
+  data = NULL;
+  data = array_pop_pos(array4, 10);
+
+  if(data) {
+    printf("TEST%u: Test pop 10th item\t[SUCCESS]\n", ++t);
+    printf("\tItem was: %d\n", (*(int*)data));
+    free(data);
+  } else {
+    printf("TEST%u: Test pop front item\t[FAILURE]\n", ++t);
+  }
+
+  array_print_int(array4, 10);
 
   // Test the freeing of dynamically added memory
   array_free(array1);
   array_free(array2);
   array_free(array3);
+  array_free(array4);
 }
 
 
