@@ -184,6 +184,20 @@ void array_tests() {
 }
 
 
+void heap_tests() {
+  printf("|---------- HEAP STRUCT TESTS ----------|\n");
+  //unsigned int t = 0;
+
+  // Test the allocation of the array structure
+  struct heap *heap1 = heap_create(MINHEAP);
+  struct heap *heap2 = heap_create(MAXHEAP);
+
+  // Test the freeing of heap memory
+  heap_free(heap1);
+  heap_free(heap2);
+}
+
+
 /////////////////////////////////////////////////////////////
 // MAIN FUNCTION IMPLEMENTATION
 //
@@ -191,6 +205,9 @@ void array_tests() {
 int main(const int argc, const char *argv[]) {
   // Function to run the array struct tests
   array_tests();
+
+  // Function to run the heap struct tests
+  heap_tests();
 
   return 0;
 }

@@ -76,6 +76,6 @@ void*         array_get(struct array *array, size_t pos);
 void*         array_pop_beg(struct array *array);
 void*         array_pop_end(struct array *array);
 void*         array_pop_pos(struct array *array, size_t pos);
-
+size_t        array_size(struct array *array);
 
 #endif // _ARRAY_H

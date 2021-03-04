@@ -36,6 +36,7 @@
 
 // Local includes
 #include "array.h"
+#include "heap.h"
 
 
 /////////////////////////////////////////////////////////////
@@ -43,7 +44,7 @@
 //
 
 void array_tests();
-
+void heap_tests();
 
 
 #endif // _STRUCTS_H

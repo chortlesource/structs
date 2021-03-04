@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////
 //
-// structs - array.h
+// structs - array.c
 //
 // Copyright (c) 2021 Christopher M. Short
 //
@@ -296,4 +296,15 @@ void* array_pop_pos(struct array *array, size_t pos) {
   }
 
   return data;
+}
+
+
+size_t array_size(struct array *array) {
+  size_t rvalue = 0;
+
+  if(array) {
+    rvalue = array->count;
+  }
+
+  return rvalue;
 }

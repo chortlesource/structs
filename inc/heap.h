@@ -53,18 +53,18 @@ struct elem {
   void   *data;
   size_t size;
   size_t value;
-}
+};
 
 struct heap {
   struct array *array;
-  heap_e type;
+  enum heap_e type;
 };
 
 typedef void(*heap_func)(void*);
 
 
 /////////////////////////////////////////////////////////////
-// MINHEAP FUNCTIONS
+// HEAP FUNCTION DECLARATION
 //
 
 // Functions to create and free memory allocated to heaps
