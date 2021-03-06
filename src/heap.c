@@ -94,8 +94,12 @@ int heap_add(struct heap *heap, void *data, size_t value, size_t size) {
         elem->value = value;
 
         rvalue = array_append(heap->array, elem, sizeof(struct elem));
-      }
 
+        if(heap_size(heap))
+          heap_heapify_up(heap, heap_size(heap) - 1);
+
+
+      }
       free(elem);
     }
   }
@@ -122,9 +126,84 @@ int heap_swap(struct heap *heap, size_t elem1, size_t elem2) {
 }
 
 
-int heap_heapify_up(struct heap *heap, size_t index) { return 0; }
-int heap_heapify_down(struct heap *heap, size_t index) { return 0; }
-int heap_for_each(struct heap *heap, heap_func func) { return 0; }
+void heap_heapify_up(struct heap *heap, size_t index) {
+  if(heap) {
+    size_t size         = heap_size(heap);
+    size_t parent_index = (index - 1) / 2;
+
+    if(index < size && parent_index < size) {
+      size_t child_value  = heap_get_value(heap, index);
+      size_t parent_value = heap_get_value(heap, parent_index);
+
+      if(child_value < parent_value) {
+        heap_swap(heap, index, parent_index);
+
+        if(parent_index > 0)
+          heap_heapify_up(heap, parent_index);
+
+        if(parent_index == 0 && parent_value == 0)
+          heap_heapify_down(heap, parent_index);
+      }
+    }
+  }
+}
+
+
+void heap_heapify_down(struct heap *heap, size_t index) {
+  if(heap) {
+    size_t size = heap_size(heap);
+
+    if(size > 1) {
+      // Obtain the parent node and calculate indexes
+      size_t parent_value = heap_get_value(heap, index);
+      size_t left_index   = (index * 2) + 1;
+      size_t left_value   = heap_get_value(heap, left_index);
+      size_t right_index  = left_index + 1;
+      size_t right_value  = heap_get_value(heap, right_index);
+
+      // Helper vars for recursion
+      size_t swapped     = 0;
+      size_t swapped_index;
+
+      switch(heap->type) {
+      case MINHEAP:
+        {
+          if(right_index < size && right_value < left_value && parent_value > right_value) {
+            heap_swap(heap, index, right_index);
+            swapped_index = right_index;
+            ++swapped;
+          }
+          else if (parent_value > left_value) {
+            heap_swap(heap, index, left_index);
+            swapped_index = left_index;
+            ++swapped;
+          }
+        }
+        break;
+      case MAXHEAP:
+        {
+          if(right_index < size && right_value > left_value && parent_value < right_value) {
+            heap_swap(heap, index, right_index);
+            swapped_index = right_index;
+            ++swapped;
+          }
+          else if (parent_value < left_value) {
+            heap_swap(heap, index, left_index);
+            swapped_index = left_index;
+            ++swapped;
+          }
+        }
+        break;
+      default:
+        break;
+      };
+
+      if(swapped && ((swapped_index * 2) + 1) < size - 1)
+        heap_heapify_down(heap, swapped_index);
+
+    }
+  }
+}
 
 
 struct elem* heap_pop(struct heap *heap) {
@@ -133,10 +212,11 @@ struct elem* heap_pop(struct heap *heap) {
   if(heap) {
     size_t size = heap_size(heap);
     if(size) {
+      // If there are othere elem move to end
       if(size > 1)
         heap_swap(heap, 0, size - 1);
 
-      data = array_pop_end(heap->array);
+      data = array_pop_end(heap->array); // Pop from end
 
       if(--size > 1)
         heap_heapify_down(heap, 0);
@@ -147,11 +227,24 @@ struct elem* heap_pop(struct heap *heap) {
 }
 
 
-size_t       heap_size(struct heap *heap) {
+size_t       heap_get_value(struct heap *heap, size_t index) {
+  size_t rvalue = 0;
+
+  if(heap) {
+    if(index < heap_size(heap)) {
+      rvalue = ((struct elem*)array_get(heap->array, index))->value;
+    }
+  }
+
+  return rvalue;
+}
+
+size_t heap_size(struct heap *heap) {
   size_t rvalue = 0;
 
   if(heap) {
     if(heap->array) {
+      // Return the number of elem
       rvalue = array_size(heap->array);
     }
   }

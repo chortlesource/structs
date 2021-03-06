@@ -85,6 +85,28 @@ static void heap_print(struct heap *heap, size_t row_len) {
 }
 
 
+static void heap_print_string(struct heap *heap, size_t row_len) {
+  if(heap) {
+    size_t size = heap_size(heap);
+
+    if(size) {
+      size_t row  = 0;
+
+      printf("\t%zu:", row++);
+
+      for(size_t i = 0; i < size; i++) {
+        if(i == row * row_len)
+          printf("|\n\t%zu:", row++);
+
+        struct elem *elem = (struct elem*)array_get(heap->array, i);
+        printf("|%s[%zu][%zu]", (char*)elem->data, elem->value, elem->size);
+      }
+      printf("|\n");
+    }
+  }
+}
+
+
 /////////////////////////////////////////////////////////////
 // TEST FUNCTION DECLARATIONS
 //
@@ -212,18 +234,12 @@ void heap_tests() {
 
   // Test the allocation of the array structure
   struct heap *heap1 = heap_create(MINHEAP);
-  struct heap *heap2 = heap_create(MAXHEAP);
-
-  // Test adding to the heap
-  char temp1[11] = "0123456789\0";
-
-  if(heap_add(heap1, &temp1[0], 7, sizeof(char)))
-    printf("TEST%u: Adding to the heap\t[SUCCESS]\n", ++t);
-  else
-    printf("TEST%u: Adding to the heap\t[FAILURE]\n", ++t);
+  struct heap *heap2 = heap_create(MINHEAP);
 
   // Test loop adding to the heap
+  char temp1[11] = "0123456789\0";
   int rvalue = 0;
+
   for(size_t i = 0; i < 10; i++)
     rvalue += heap_add(heap2, &temp1[i], i, sizeof(char));
 
@@ -234,16 +250,47 @@ void heap_tests() {
 
   heap_print(heap2, 5);
 
-  // Test pop from the heap
-  struct elem *elem = heap_pop(heap2);
-  if(elem->value == 0)
-    printf("TEST%u: Pop from the heap\t[SUCCESS]\n", ++t);
-  else
-    printf("TEST%u: Pop from the heap\t[FAILURE]\n", ++t);
+  // Test scoped adding to the heap
+  rvalue = 0;
+  {
+    char temp2[11] = "abcdefghij\0";
+    rvalue = heap_add(heap1, temp2, 69, sizeof(char) * 11);
+  }
 
-  printf("\tPOPPED: %c [%zu][%zu]\n", (*(char*)elem->data), elem->value, elem->size);
-  heap_free_elem(elem);
-  heap_print(heap2, 5);
+  if(rvalue)
+    printf("TEST%u: Scoped addition to heap\t[SUCCESS]\n", ++t);
+  else
+    printf("TEST%u: Scoped addition to heap\t[FAILURE]\n", ++t);
+
+  heap_print_string(heap1, 5);
+
+  // Test pop from the heap
+  size_t heapsize = heap_size(heap2);
+  size_t items = 0;
+
+  printf("TEST%u: Testing heap pop...\n", ++t);
+
+  for(size_t i = 0; i < heapsize; i++) {
+    struct elem *elem = heap_pop(heap2);
+
+    if(elem) {
+      printf("\tPOPPED: %c [%zu][%zu]\n", (*(char*)elem->data), elem->value, elem->size);
+
+      heap_free_elem(elem);
+      ++items;
+    }
+  }
+
+  if(items == 10)
+    printf("\t...[SUCCESS]\n");
+  else
+    printf("\t...[FAILURE]\n");
+
+  // Test invalid heap pop
+  if(heap_pop(heap2) == NULL)
+    printf("TEST%u: Invalid pop from heap\t[SUCCESS]\n", ++t);
+  else
+    printf("TEST%u: Invalid pop from heap\t[FAILURE]\n", ++t);
 
   // Test the freeing of heap memory
   heap_free(heap1);

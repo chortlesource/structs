@@ -75,12 +75,13 @@ void         heap_free_elem(struct elem *elem);
 // Functions to add items to and manipulate heaps
 int          heap_add(struct heap *heap, void *data, size_t value, size_t size);
 int          heap_swap(struct heap *heap, size_t elem1, size_t elem2);
-int          heap_heapify_up(struct heap *heap, size_t index);
-int          heap_heapify_down(struct heap *heap, size_t index);
-int          heap_for_each(struct heap *heap, heap_func func);
+void         heap_heapify_up(struct heap *heap, size_t index);
+void         heap_heapify_down(struct heap *heap, size_t index);
+void         heap_for_each(struct heap *heap, heap_func func);
 
 // Functions to obtain values from the heap
 struct elem* heap_pop(struct heap *heap);
+size_t       heap_get_value(struct heap *heap, size_t index);
 size_t       heap_size(struct heap *heap);
 
 
