@@ -95,7 +95,7 @@ int heap_add(struct heap *heap, void *data, size_t value, size_t size) {
 
         rvalue = array_append(heap->array, elem, sizeof(struct elem));
 
-        if(heap_size(heap))
+        if(heap_size(heap) > 1)
           heap_heapify_up(heap, heap_size(heap) - 1);
 
 
@@ -135,15 +135,30 @@ void heap_heapify_up(struct heap *heap, size_t index) {
       size_t child_value  = heap_get_value(heap, index);
       size_t parent_value = heap_get_value(heap, parent_index);
 
-      if(child_value < parent_value) {
-        heap_swap(heap, index, parent_index);
+      switch(heap->type) {
+      case MINHEAP:
+        {
+          if(child_value < parent_value) {
+            heap_swap(heap, index, parent_index);
 
-        if(parent_index > 0)
-          heap_heapify_up(heap, parent_index);
+            if(parent_index > 0)
+              heap_heapify_up(heap, parent_index);
+          }
+        }
+        break;
+      case MAXHEAP:
+        {
+          if(parent_value < child_value) {
+            heap_swap(heap, index, parent_index);
 
-        if(parent_index == 0 && parent_value == 0)
-          heap_heapify_down(heap, parent_index);
-      }
+            if(parent_index > 0)
+              heap_heapify_up(heap, parent_index);
+          }
+        }
+        break;
+      default:
+        break;
+      };
     }
   }
 }
@@ -163,7 +178,7 @@ void heap_heapify_down(struct heap *heap, size_t index) {
 
       // Helper vars for recursion
       size_t swapped     = 0;
-      size_t swapped_index;
+      size_t swapped_index = parent_value;
 
       switch(heap->type) {
       case MINHEAP:
@@ -173,7 +188,7 @@ void heap_heapify_down(struct heap *heap, size_t index) {
             swapped_index = right_index;
             ++swapped;
           }
-          else if (parent_value > left_value) {
+          else if(parent_value > left_value) {
             heap_swap(heap, index, left_index);
             swapped_index = left_index;
             ++swapped;
@@ -187,7 +202,7 @@ void heap_heapify_down(struct heap *heap, size_t index) {
             swapped_index = right_index;
             ++swapped;
           }
-          else if (parent_value < left_value) {
+          else if(parent_value < size && parent_value < left_value) {
             heap_swap(heap, index, left_index);
             swapped_index = left_index;
             ++swapped;
@@ -218,7 +233,7 @@ struct elem* heap_pop(struct heap *heap) {
 
       data = array_pop_end(heap->array); // Pop from end
 
-      if(--size > 1)
+      if((size - 1) > 1)
         heap_heapify_down(heap, 0);
     }
   }
@@ -238,6 +253,7 @@ size_t       heap_get_value(struct heap *heap, size_t index) {
 
   return rvalue;
 }
+
 
 size_t heap_size(struct heap *heap) {
   size_t rvalue = 0;

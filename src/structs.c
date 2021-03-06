@@ -235,15 +235,18 @@ void heap_tests() {
   // Test the allocation of the array structure
   struct heap *heap1 = heap_create(MINHEAP);
   struct heap *heap2 = heap_create(MINHEAP);
+  struct heap *heap3 = heap_create(MAXHEAP);
 
   // Test loop adding to the heap
   char temp1[11] = "0123456789\0";
   int rvalue = 0;
 
-  for(size_t i = 0; i < 10; i++)
+  for(size_t i = 0; i < 10; i++) {
     rvalue += heap_add(heap2, &temp1[i], i, sizeof(char));
+    rvalue += heap_add(heap3, &temp1[i], i, sizeof(char));
+  }
 
-  if(rvalue == 10)
+  if(rvalue == 20)
     printf("TEST%u: Loop add to heap\t\t[SUCCESS]\n", ++t);
   else
     printf("TEST%u: Loop add to heap\t\t[FAILURE]\n", ++t);
@@ -264,11 +267,11 @@ void heap_tests() {
 
   heap_print_string(heap1, 5);
 
-  // Test pop from the heap
+  // Test pop from the min heap
   size_t heapsize = heap_size(heap2);
   size_t items = 0;
 
-  printf("TEST%u: Testing heap pop...\n", ++t);
+  printf("TEST%u: Testing minheap pop...\n", ++t);
 
   for(size_t i = 0; i < heapsize; i++) {
     struct elem *elem = heap_pop(heap2);
@@ -286,6 +289,25 @@ void heap_tests() {
   else
     printf("\t...[FAILURE]\n");
 
+
+  printf("TEST%u: Testing maxheap pop...\n", ++t);
+
+  for(size_t i = 0; i < heapsize; i++) {
+    struct elem *elem = heap_pop(heap3);
+
+    if(elem) {
+      printf("\tPOPPED: %c [%zu][%zu]\n", (*(char*)elem->data), elem->value, elem->size);
+
+      heap_free_elem(elem);
+      ++items;
+    }
+  }
+
+  if(items == 20)
+    printf("\t...[SUCCESS]\n");
+  else
+    printf("\t...[FAILURE]\n");
+
   // Test invalid heap pop
   if(heap_pop(heap2) == NULL)
     printf("TEST%u: Invalid pop from heap\t[SUCCESS]\n", ++t);
@@ -295,6 +317,7 @@ void heap_tests() {
   // Test the freeing of heap memory
   heap_free(heap1);
   heap_free(heap2);
+  heap_free(heap3);
 }
 
 
