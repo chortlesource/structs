@@ -63,12 +63,34 @@ static void array_print_int(struct array *array, size_t row_len) {
 }
 
 
+static void heap_print(struct heap *heap, size_t row_len) {
+  if(heap) {
+    size_t size = heap_size(heap);
+
+    if(size) {
+      size_t row  = 0;
+
+      printf("\t%zu:", row++);
+
+      for(size_t i = 0; i < size; i++) {
+        if(i == row * row_len)
+          printf("|\n\t%zu:", row++);
+
+        struct elem *elem = (struct elem*)array_get(heap->array, i);
+        printf("|%c[%zu][%zu]", (*(char*)elem->data), elem->value, elem->size);
+      }
+      printf("|\n");
+    }
+  }
+}
+
+
 /////////////////////////////////////////////////////////////
 // TEST FUNCTION DECLARATIONS
 //
 
 void array_tests() {
-  printf("|---------- ARRAY STRUCT TESTS ----------|\n");
+  printf("|---------- ARRAY STRUCT TEST ----------|\n");
   unsigned int t = 0;
 
   // Test the allocation of the array structure
@@ -186,11 +208,42 @@ void array_tests() {
 
 void heap_tests() {
   printf("|---------- HEAP STRUCT TESTS ----------|\n");
-  //unsigned int t = 0;
+  unsigned int t = 0;
 
   // Test the allocation of the array structure
   struct heap *heap1 = heap_create(MINHEAP);
   struct heap *heap2 = heap_create(MAXHEAP);
+
+  // Test adding to the heap
+  char temp1[11] = "0123456789\0";
+
+  if(heap_add(heap1, &temp1[0], 7, sizeof(char)))
+    printf("TEST%u: Adding to the heap\t[SUCCESS]\n", ++t);
+  else
+    printf("TEST%u: Adding to the heap\t[FAILURE]\n", ++t);
+
+  // Test loop adding to the heap
+  int rvalue = 0;
+  for(size_t i = 0; i < 10; i++)
+    rvalue += heap_add(heap2, &temp1[i], i, sizeof(char));
+
+  if(rvalue == 10)
+    printf("TEST%u: Loop add to heap\t\t[SUCCESS]\n", ++t);
+  else
+    printf("TEST%u: Loop add to heap\t\t[FAILURE]\n", ++t);
+
+  heap_print(heap2, 5);
+
+  // Test pop from the heap
+  struct elem *elem = heap_pop(heap2);
+  if(elem->value == 0)
+    printf("TEST%u: Pop from the heap\t[SUCCESS]\n", ++t);
+  else
+    printf("TEST%u: Pop from the heap\t[FAILURE]\n", ++t);
+
+  printf("\tPOPPED: %c [%zu][%zu]\n", (*(char*)elem->data), elem->value, elem->size);
+  heap_free_elem(elem);
+  heap_print(heap2, 5);
 
   // Test the freeing of heap memory
   heap_free(heap1);

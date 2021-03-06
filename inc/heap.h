@@ -70,6 +70,7 @@ typedef void(*heap_func)(void*);
 // Functions to create and free memory allocated to heaps
 struct heap* heap_create(int type);
 void         heap_free(struct heap *heap);
+void         heap_free_elem(struct elem *elem);
 
 // Functions to add items to and manipulate heaps
 int          heap_add(struct heap *heap, void *data, size_t value, size_t size);
@@ -79,7 +80,7 @@ int          heap_heapify_down(struct heap *heap, size_t index);
 int          heap_for_each(struct heap *heap, heap_func func);
 
 // Functions to obtain values from the heap
-void*        heap_pop(struct heap *heap);
+struct elem* heap_pop(struct heap *heap);
 size_t       heap_size(struct heap *heap);
 
 

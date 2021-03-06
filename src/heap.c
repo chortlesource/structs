@@ -67,7 +67,41 @@ void heap_free(struct heap *heap) {
 }
 
 
-int heap_add(struct heap *heap, void *data, size_t value, size_t size) { return 0; }
+void heap_free_elem(struct elem *elem) {
+  if(elem) {
+    free(elem->data);
+    free(elem);
+  }
+}
+
+
+int heap_add(struct heap *heap, void *data, size_t value, size_t size) {
+  int rvalue = 0;
+
+  if(heap) {
+    struct elem *elem = malloc(sizeof(struct elem));
+
+    if(elem) {
+      // Copy memory accross to the heap
+      void *copy = calloc(1, size);
+
+      if(copy) {
+        memcpy(copy, data, size);
+
+        // Initialize variables
+        elem->data  = copy;
+        elem->size  = size;
+        elem->value = value;
+
+        rvalue = array_append(heap->array, elem, sizeof(struct elem));
+      }
+
+      free(elem);
+    }
+  }
+
+  return rvalue;
+}
 
 
 int heap_swap(struct heap *heap, size_t elem1, size_t elem2) {
@@ -75,8 +109,12 @@ int heap_swap(struct heap *heap, size_t elem1, size_t elem2) {
 
   if(heap) {
     if(heap_size(heap) > elem1 && heap_size(heap) > elem2) {
-      void *data =
-      rvalue = H_OK
+      // Switch the pointers out using a temp pointer
+      void *temp = array_get(heap->array, elem1);
+
+      heap->array->data[elem1] = heap->array->data[elem2];
+      heap->array->data[elem2] = temp;
+      rvalue = H_OK;
     }
   }
 
@@ -87,7 +125,26 @@ int heap_swap(struct heap *heap, size_t elem1, size_t elem2) {
 int heap_heapify_up(struct heap *heap, size_t index) { return 0; }
 int heap_heapify_down(struct heap *heap, size_t index) { return 0; }
 int heap_for_each(struct heap *heap, heap_func func) { return 0; }
-void* heap_pop(struct heap *heap) { return NULL; }
+
+
+struct elem* heap_pop(struct heap *heap) {
+  struct elem *data = NULL;
+
+  if(heap) {
+    size_t size = heap_size(heap);
+    if(size) {
+      if(size > 1)
+        heap_swap(heap, 0, size - 1);
+
+      data = array_pop_end(heap->array);
+
+      if(--size > 1)
+        heap_heapify_down(heap, 0);
+    }
+  }
+
+  return data;
+}
 
 
 size_t       heap_size(struct heap *heap) {
