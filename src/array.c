@@ -180,6 +180,16 @@ int array_set(struct array *array, size_t pos, void *data, size_t size) {
 }
 
 
+void array_copy_from(struct array *dest, struct array *src, size_t index) {
+  if(dest && src) {
+    if(src->data != NULL && index < src->count) {
+      for(size_t i = index; i < src->count; i++)
+        array_append(dest, array_get(src, i), sizeof(void*));
+    }
+  }
+}
+
+
 void array_for_each(struct array *array, array_func func) {
   if(array) {
     if(array->data != NULL) {
@@ -307,4 +317,14 @@ size_t array_size(struct array *array) {
   }
 
   return rvalue;
+}
+
+
+void array_print_as_string(struct array *array) {
+  if(array) {
+    if(array->data != NULL) {
+      for(size_t i = 0; i < array->count; i++)
+        printf("%s", (char*)array->data[i]);
+    }
+  }
 }

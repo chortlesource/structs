@@ -67,6 +67,7 @@ int           array_resize(struct array *array, size_t size);
 int           array_insert(struct array *array, size_t pos, void *data, size_t size);
 int           array_append(struct array *array, void *data, size_t size);
 int           array_set(struct array *array, size_t pos, void *data, size_t size);
+void           array_copy_from(struct array *dest, struct array *src, size_t index);
 void          array_for_each(struct array *array, array_func func);
 
 // Functions to obtain data from the array
@@ -77,5 +78,8 @@ void*         array_pop_beg(struct array *array);
 void*         array_pop_end(struct array *array);
 void*         array_pop_pos(struct array *array, size_t pos);
 size_t        array_size(struct array *array);
+
+// Functions to print to screen
+void          array_print_as_string(struct array *array);
 
 #endif // _ARRAY_H

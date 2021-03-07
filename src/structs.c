@@ -269,9 +269,9 @@ void heap_tests() {
 
 
   // Test print the heap
-  printf("TEST%u: Print the minheap tree\t[SUCCESS]\n", ++t);
+  printf("TEST%u: Print the minheap tree...\t\n", ++t);
   heap_print(heap2);
-  printf("TEST%u: Print the maxheap tree\t[SUCCESS]\n", ++t);
+  printf("TEST%u: Print the maxheap tree...\t\n", ++t);
   heap_print(heap3);
 
   // Test pop from the min heap
