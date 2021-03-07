@@ -221,6 +221,109 @@ void heap_heapify_down(struct heap *heap, size_t index) {
 }
 
 
+void heap_for_each(struct heap *heap, heap_func func) {
+  if(heap) {
+    if(heap->array != NULL) {
+      array_for_each(heap->array, (array_func)func);
+    }
+  }
+}
+
+
+static void heap_print_nodes(struct heap *heap, struct array *string, struct array *padding, char *pointer, size_t index, size_t right_sibling) {
+  size_t size = heap_size(heap);
+
+  if(size) {
+    // Characters and Padding for convenience
+    char newline[] = "\n";
+    char pad1[] = "|  ";
+    char pad2[] = "   ";
+    char pad3[] = "├──";
+    char pad4[] = "└──";
+
+    // Append new line, padding and the pointer to the string
+    array_append(string, newline, sizeof(char) * strlen(newline) + 1);
+
+    for(size_t i = 0; i < array_size(padding); i++) {
+      char *temp = (char*)array_get(padding, i);
+      array_append(string, temp, strlen(temp) + 1);
+    }
+
+    array_append(string, pointer, sizeof(char) + strlen(pointer));
+
+    // Calculate if there is a left or right index
+    size_t left_index   = (index * 2) + 1;
+    size_t right_index  = left_index + 1;
+    size_t node_value   = heap_get_value(heap, index);
+
+    if(right_index > size) right_index = 0;
+    if(left_index > size) left_index   = 0;
+
+    // Print our node value to string
+    char value[256];
+    snprintf(value, 256 * sizeof(char), "%zu", node_value);
+    array_append(string, value, sizeof(char) * 256);
+
+    struct array *newpadding = array_create(0);
+    for(size_t i = 0; i < array_size(padding); i++) {
+      char *temp = (char*)array_get(padding, i);
+      array_append(newpadding, temp, strlen(temp) + 1);
+    }
+
+    // Assign padding
+    if(right_sibling) {
+      array_append(newpadding, pad1, sizeof(char) * strlen(pad1) + 1);
+    } else {
+      array_append(newpadding, pad2, sizeof(char) * strlen(pad2) + 1);
+    }
+
+    // Recursively print nodes
+    if(left_index)
+      heap_print_nodes(heap, string, newpadding, (right_index) ? pad3 : pad4, left_index, right_index);
+    if(right_index)
+      heap_print_nodes(heap, string, newpadding, pad4, right_index, right_index);
+
+    array_free(newpadding);
+  }
+}
+
+
+void heap_print(struct heap *heap) {
+  if(heap) {
+    size_t size = heap_size(heap);
+
+    if(size) {
+      struct array *string  = array_create(0);
+      struct array *padding = array_create(0);
+
+      // Pickup the
+      char pad1[]    = "├──";
+      char pad2[]    = "└──";
+      char pad3[]    = "";
+      char rv[256]   = "";
+      size_t rootval = heap_get_value(heap, 0);
+      snprintf(rv, 256 * sizeof(char), "%zu", rootval);
+
+      array_append(padding, pad3, sizeof(char));
+      array_append(string, rv, sizeof(char) * strnlen(rv, 256) + 1);
+      heap_print_nodes(heap, string, padding, (3 < size) ? pad1 : pad2, 1, 1);
+      heap_print_nodes(heap, string, padding, pad2, 2, 0);
+
+      if(string) {
+        size_t strsize = array_size(string);
+
+        for(size_t i = 0; i < strsize; i++)
+          printf("%s", (char*)array_get(string, i));
+
+      }
+      printf("\n");
+      array_free(string);
+      array_free(padding);
+    }
+  }
+}
+
+
 struct elem* heap_pop(struct heap *heap) {
   struct elem *data = NULL;
 

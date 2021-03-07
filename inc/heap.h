@@ -78,6 +78,7 @@ int          heap_swap(struct heap *heap, size_t elem1, size_t elem2);
 void         heap_heapify_up(struct heap *heap, size_t index);
 void         heap_heapify_down(struct heap *heap, size_t index);
 void         heap_for_each(struct heap *heap, heap_func func);
+void         heap_print(struct heap *heap);
 
 // Functions to obtain values from the heap
 struct elem* heap_pop(struct heap *heap);

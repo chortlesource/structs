@@ -63,7 +63,7 @@ static void array_print_int(struct array *array, size_t row_len) {
 }
 
 
-static void heap_print(struct heap *heap, size_t row_len) {
+static void heap_print_char(struct heap *heap, size_t row_len) {
   if(heap) {
     size_t size = heap_size(heap);
 
@@ -251,7 +251,7 @@ void heap_tests() {
   else
     printf("TEST%u: Loop add to heap\t\t[FAILURE]\n", ++t);
 
-  heap_print(heap2, 5);
+  heap_print_char(heap2, 5);
 
   // Test scoped adding to the heap
   rvalue = 0;
@@ -266,6 +266,13 @@ void heap_tests() {
     printf("TEST%u: Scoped addition to heap\t[FAILURE]\n", ++t);
 
   heap_print_string(heap1, 5);
+
+
+  // Test print the heap
+  printf("TEST%u: Print the minheap tree\t[SUCCESS]\n", ++t);
+  heap_print(heap2);
+  printf("TEST%u: Print the maxheap tree\t[SUCCESS]\n", ++t);
+  heap_print(heap3);
 
   // Test pop from the min heap
   size_t heapsize = heap_size(heap2);
